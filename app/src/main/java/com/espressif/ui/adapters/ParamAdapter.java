@@ -69,6 +69,7 @@ public class ParamAdapter extends RecyclerView.Adapter<ParamAdapter.MyViewHolder
         apiManager = ApiManager.getInstance(context.getApplicationContext());
     }
 
+    @NonNull
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
@@ -144,30 +145,38 @@ public class ParamAdapter extends RecyclerView.Adapter<ParamAdapter.MyViewHolder
         myViewHolder.tvLabelPalette.setText(param.getName());
         Log.e(TAG, "displayPalette: current hsv" + param.getSliderValue());
         myViewHolder.paletteBar.setColor((int) param.getSliderValue());
-        myViewHolder.paletteBar.setListener(new PaletteBar.PaletteBarListener() {
-            @Override
-            public void onColorSelected(int colorInt) {
-                int finalProgress = colorInt;
+        if (param.getProperties().contains("write")) {
 
-                JsonObject jsonParam = new JsonObject();
-                JsonObject body = new JsonObject();
+            if (((EspDeviceActivity) context).isNodeOnline()) {
 
-                jsonParam.addProperty(param.getName(), finalProgress);
-                body.add(deviceName, jsonParam);
-                apiManager.updateParamValue(nodeId, body, new ApiResponseListener() {
-
+                myViewHolder.paletteBar.setEnabled(true);
+                myViewHolder.paletteBar.setListener(new PaletteBar.PaletteBarListener() {
                     @Override
-                    public void onSuccess(Bundle data) {
-                        ((EspDeviceActivity) context).startUpdateValueTask();
-                    }
+                    public void onColorSelected(int colorInt) {
 
-                    @Override
-                    public void onFailure(Exception exception) {
-                        ((EspDeviceActivity) context).startUpdateValueTask();
+                        JsonObject jsonParam = new JsonObject();
+                        JsonObject body = new JsonObject();
+
+                        jsonParam.addProperty(param.getName(), colorInt);
+                        body.add(deviceName, jsonParam);
+                        apiManager.updateParamValue(nodeId, body, new ApiResponseListener() {
+
+                            @Override
+                            public void onSuccess(Bundle data) {
+                                ((EspDeviceActivity) context).startUpdateValueTask();
+                            }
+
+                            @Override
+                            public void onFailure(Exception exception) {
+                                ((EspDeviceActivity) context).startUpdateValueTask();
+                            }
+                        });
                     }
                 });
+            }else{
+                myViewHolder.paletteBar.setEnabled(false);
             }
-        });
+        }
     }
 
     private void displaySlider(final MyViewHolder myViewHolder, final Param param, final int position) {
@@ -257,6 +266,7 @@ public class ParamAdapter extends RecyclerView.Adapter<ParamAdapter.MyViewHolder
                 myViewHolder.intSlider.setOnTouchListener(new View.OnTouchListener() {
                     @Override
                     public boolean onTouch(View v, MotionEvent event) {
+
                         return true;
                     }
                 });

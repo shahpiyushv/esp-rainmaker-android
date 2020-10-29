@@ -98,22 +98,31 @@ public class PaletteBar extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        Log.e(TAG, "onDraw: mcurrentColor" + mCurrentHueColor);
-        hsv[0] = mCurrentHueColor;
-        int mCurrentIntColor = Color.HSVToColor(hsv);
-        backgroundPaint.setColor(mCurrentIntColor);
-        canvas.drawPaint(backgroundPaint);
-        drawColorPalette(canvas);
+        if (isEnabled()) {
+            Log.e(TAG, "onDraw: mcurrentColor called isenabled" + mCurrentHueColor);
+            hsv[0] = mCurrentHueColor;
+            int mCurrentIntColor = Color.HSVToColor(hsv);
+            backgroundPaint.setColor(mCurrentIntColor);
+            canvas.drawPaint(backgroundPaint);
+            drawColorPalette(canvas);
+        }else{
+            Log.e(TAG, "onDraw: mcurrentColor" + mCurrentHueColor);
+            hsv[0] = mCurrentHueColor;
+            int mCurrentIntColor = Color.HSVToColor(hsv);
+            backgroundPaint.setColor(mCurrentIntColor);
+            canvas.drawPaint(backgroundPaint);
+            drawColorPalette(canvas);
+        }
     }
 
 
     private void drawColorPalette(Canvas canvas) {
         if (sizeChanged) {
-            gradient = new LinearGradient( mColorMargin, mColorMargin, mPaletteWidth - mColorMargin, mColorMargin, COLORS, null, Shader.TileMode.MIRROR);
+            gradient = new LinearGradient(mColorMargin, mColorMargin, mPaletteWidth - mColorMargin, mColorMargin, COLORS, null, Shader.TileMode.MIRROR);
             rGBGradientPaint.setShader(gradient);
             sizeChanged = false;
         }
-        canvas.drawRect( mColorMargin, mColorMargin, mPaletteWidth - mColorMargin, mPaletteHeight - mColorMargin, rGBGradientPaint);
+        canvas.drawRect(mColorMargin, mColorMargin, mPaletteWidth - mColorMargin, mPaletteHeight - mColorMargin, rGBGradientPaint);
 
     }
 
@@ -122,6 +131,19 @@ public class PaletteBar extends View {
      */
     public int getCurrentColor() {
         return mCurrentHueColor;
+    }
+
+    @Override
+    public void setEnabled(boolean enabled) {
+        if (enabled == isEnabled()) {
+            return;
+        }
+        super.setEnabled(enabled);
+        if (isEnabled()) {
+            setAlpha(1.0f);
+        } else {
+            setAlpha(0.3f);
+        }
     }
 
 
@@ -179,7 +201,7 @@ public class PaletteBar extends View {
      * @author brianherbert
      */
     public interface PaletteBarListener {
-         void onColorSelected(int color);
+        void onColorSelected(int color);
     }
 
 
