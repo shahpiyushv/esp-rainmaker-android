@@ -16,10 +16,12 @@ package com.espressif.ui.adapters;
 
 import android.app.Activity;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -40,6 +42,7 @@ import com.espressif.AppConstants;
 import com.espressif.cloudapi.ApiManager;
 import com.espressif.cloudapi.ApiResponseListener;
 import com.espressif.rainmaker.R;
+import com.espressif.ui.PaletteBar;
 import com.espressif.ui.activities.EspDeviceActivity;
 import com.espressif.ui.models.Param;
 import com.google.gson.JsonObject;
@@ -95,8 +98,11 @@ public class ParamAdapter extends RecyclerView.Adapter<ParamAdapter.MyViewHolder
                 int min = param.getMinBounds();
 
                 if ((min < max)) {
+                    if (param.getName().equals("hue")) {
+                        displayPalette(myViewHolder, param, position);
+                    } else
+                        displaySlider(myViewHolder, param, position);
 
-                    displaySlider(myViewHolder, param, position);
                 } else {
                     displayLabel(myViewHolder, param, position);
                 }
@@ -128,6 +134,40 @@ public class ParamAdapter extends RecyclerView.Adapter<ParamAdapter.MyViewHolder
     public void updateList(ArrayList<Param> updatedDeviceList) {
         params = updatedDeviceList;
         notifyDataSetChanged();
+    }
+
+    private void displayPalette(MyViewHolder myViewHolder, final Param param, final int position) {
+        ((EspDeviceActivity) context).stopUpdateValueTask();
+        myViewHolder.rvPalette.setVisibility(View.VISIBLE);
+        myViewHolder.tvSliderName.setVisibility(View.GONE);
+        myViewHolder.intSlider.setVisibility(View.GONE);
+        myViewHolder.tvLabelPalette.setText(param.getName());
+        Log.e(TAG, "displayPalette: current hsv" + param.getSliderValue());
+        myViewHolder.paletteBar.setColor((int) param.getSliderValue());
+        myViewHolder.paletteBar.setListener(new PaletteBar.PaletteBarListener() {
+            @Override
+            public void onColorSelected(int colorInt) {
+                int finalProgress = colorInt;
+
+                JsonObject jsonParam = new JsonObject();
+                JsonObject body = new JsonObject();
+
+                jsonParam.addProperty(param.getName(), finalProgress);
+                body.add(deviceName, jsonParam);
+                apiManager.updateParamValue(nodeId, body, new ApiResponseListener() {
+
+                    @Override
+                    public void onSuccess(Bundle data) {
+                        ((EspDeviceActivity) context).startUpdateValueTask();
+                    }
+
+                    @Override
+                    public void onFailure(Exception exception) {
+                        ((EspDeviceActivity) context).startUpdateValueTask();
+                    }
+                });
+            }
+        });
     }
 
     private void displaySlider(final MyViewHolder myViewHolder, final Param param, final int position) {
@@ -635,10 +675,11 @@ public class ParamAdapter extends RecyclerView.Adapter<ParamAdapter.MyViewHolder
         // init the item view's
         TickSeekBar intSlider, floatSlider;
         SwitchCompat toggleSwitch;
-        TextView tvSliderName, tvSwitchName, tvSwitchStatus, tvLabelName, tvLabelValue;
-        RelativeLayout rvUiTypeSlider, rvUiTypeSwitch, rvUiTypeLabel;
+        TextView tvSliderName, tvSwitchName, tvSwitchStatus, tvLabelName, tvLabelValue, tvLabelPalette;
+        RelativeLayout rvUiTypeSlider, rvUiTypeSwitch, rvUiTypeLabel, rvPalette;
         TextView btnEdit;
         ContentLoadingProgressBar progressBar;
+        PaletteBar paletteBar;
 
         public MyViewHolder(View itemView) {
             super(itemView);
@@ -652,11 +693,14 @@ public class ParamAdapter extends RecyclerView.Adapter<ParamAdapter.MyViewHolder
             tvSwitchStatus = itemView.findViewById(R.id.tv_switch_status);
             tvLabelName = itemView.findViewById(R.id.tv_label_name);
             tvLabelValue = itemView.findViewById(R.id.tv_label_value);
+            tvLabelPalette = itemView.findViewById(R.id.palette_name);
             btnEdit = itemView.findViewById(R.id.btn_edit);
             progressBar = itemView.findViewById(R.id.progress_indicator);
             rvUiTypeSlider = itemView.findViewById(R.id.rl_card_slider);
             rvUiTypeSwitch = itemView.findViewById(R.id.rl_card_switch);
             rvUiTypeLabel = itemView.findViewById(R.id.rl_card_label);
+            rvPalette = itemView.findViewById(R.id.rl_card_palette);
+            paletteBar = itemView.findViewById(R.id.rl_palette);
         }
     }
 }
