@@ -42,7 +42,7 @@ public class PaletteBar extends View {
 
 
     private int mCurrentHueColor = 180;
-    float hsv[] = new float[3];
+    float[] hsv = new float[3];
 
     private PaletteBarListener mListener;
     private boolean sizeChanged;
@@ -109,11 +109,11 @@ public class PaletteBar extends View {
 
     private void drawColorPalette(Canvas canvas) {
         if (sizeChanged) {
-            gradient = new LinearGradient(0 + mColorMargin, 0 + mColorMargin, mPaletteWidth - mColorMargin, 0 + mColorMargin, COLORS, null, Shader.TileMode.MIRROR);
+            gradient = new LinearGradient( mColorMargin, mColorMargin, mPaletteWidth - mColorMargin, mColorMargin, COLORS, null, Shader.TileMode.MIRROR);
             rGBGradientPaint.setShader(gradient);
             sizeChanged = false;
         }
-        canvas.drawRect(0 + mColorMargin, 0 + mColorMargin, mPaletteWidth - mColorMargin, mPaletteHeight - mColorMargin, rGBGradientPaint);
+        canvas.drawRect( mColorMargin, mColorMargin, mPaletteWidth - mColorMargin, mPaletteHeight - mColorMargin, rGBGradientPaint);
 
     }
 
@@ -150,6 +150,7 @@ public class PaletteBar extends View {
             mCurrentHueColor = getColorFromCoords(x, y);
             if (mListener != null)
                 mListener.onColorSelected(mCurrentHueColor);
+            performClick();
             invalidate();
             return true;
         }
@@ -178,7 +179,7 @@ public class PaletteBar extends View {
      * @author brianherbert
      */
     public interface PaletteBarListener {
-        public void onColorSelected(int color);
+         void onColorSelected(int color);
     }
 
 
