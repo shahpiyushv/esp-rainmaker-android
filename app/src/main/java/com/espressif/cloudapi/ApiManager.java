@@ -1914,7 +1914,7 @@ public class ApiManager {
         String dataType = param.getDataType();
         String paramName = param.getName();
 
-        if (AppConstants.UI_TYPE_SLIDER.equalsIgnoreCase(param.getUiType())) {
+        if (AppConstants.UI_TYPE_SLIDER.equalsIgnoreCase(param.getUiType()) || AppConstants.UI_TYPE_COLOR_SLIDER.equalsIgnoreCase(param.getUiType())) {
 
             String labelValue = "";
 
