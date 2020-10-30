@@ -16,7 +16,6 @@ package com.espressif.ui.adapters;
 
 import android.app.Activity;
 import android.content.DialogInterface;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.text.InputFilter;
 import android.text.InputType;
@@ -143,7 +142,6 @@ public class ParamAdapter extends RecyclerView.Adapter<ParamAdapter.MyViewHolder
         myViewHolder.tvSliderName.setVisibility(View.GONE);
         myViewHolder.intSlider.setVisibility(View.GONE);
         myViewHolder.tvLabelPalette.setText(param.getName());
-        Log.e(TAG, "displayPalette: current hsv" + param.getSliderValue());
         myViewHolder.paletteBar.setColor((int) param.getSliderValue());
         if (param.getProperties().contains("write")) {
 
