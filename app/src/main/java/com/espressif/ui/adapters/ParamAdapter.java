@@ -266,12 +266,10 @@ public class ParamAdapter extends RecyclerView.Adapter<ParamAdapter.MyViewHolder
                 myViewHolder.intSlider.setOnTouchListener(new View.OnTouchListener() {
                     @Override
                     public boolean onTouch(View v, MotionEvent event) {
-
                         return true;
                     }
                 });
             }
-
         } else {
 
             myViewHolder.intSlider.setVisibility(View.GONE);

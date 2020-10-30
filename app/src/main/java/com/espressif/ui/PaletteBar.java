@@ -6,13 +6,9 @@ import android.graphics.Color;
 import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.Shader;
-import android.graphics.drawable.GradientDrawable;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-
-import com.espressif.rainmaker.R;
 
 
 public class PaletteBar extends View {
@@ -40,10 +36,9 @@ public class PaletteBar extends View {
      */
     private int mColorMargin = 10;
 
-
-    private int mCurrentHueColor = 180;
+    private int mCurrentHueColor = 180; //default selected color i.e. teal
     float[] hsv = new float[3];
-
+    int mCurrentIntColor;
     private PaletteBarListener mListener;
     private boolean sizeChanged;
 
@@ -59,7 +54,7 @@ public class PaletteBar extends View {
     public PaletteBar(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
 
-        init(context);
+        init();
     }
 
     /**
@@ -72,7 +67,7 @@ public class PaletteBar extends View {
         mColorMargin = colorMarginPx;
 
         if (getContext() != null) {
-            init(getContext());
+            init();
             invalidate();
         }
     }
@@ -83,11 +78,13 @@ public class PaletteBar extends View {
     }
 
 
-    public void init(Context context) {
+    public void init() {
 
         rGBGradientPaint = new Paint();
+        rGBGradientPaint.setAntiAlias(true);
 
         backgroundPaint = new Paint();
+        backgroundPaint.setAntiAlias(true);
 
         hsv[0] = mCurrentHueColor;
         hsv[1] = 10.0f;
@@ -98,21 +95,11 @@ public class PaletteBar extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        if (isEnabled()) {
-            Log.e(TAG, "onDraw: mcurrentColor called isenabled" + mCurrentHueColor);
-            hsv[0] = mCurrentHueColor;
-            int mCurrentIntColor = Color.HSVToColor(hsv);
-            backgroundPaint.setColor(mCurrentIntColor);
-            canvas.drawPaint(backgroundPaint);
-            drawColorPalette(canvas);
-        }else{
-            Log.e(TAG, "onDraw: mcurrentColor" + mCurrentHueColor);
-            hsv[0] = mCurrentHueColor;
-            int mCurrentIntColor = Color.HSVToColor(hsv);
-            backgroundPaint.setColor(mCurrentIntColor);
-            canvas.drawPaint(backgroundPaint);
-            drawColorPalette(canvas);
-        }
+        hsv[0] = mCurrentHueColor;
+        mCurrentIntColor = Color.HSVToColor(hsv);
+        backgroundPaint.setColor(mCurrentIntColor);
+        canvas.drawPaint(backgroundPaint);
+        drawColorPalette(canvas);
     }
 
 
@@ -148,8 +135,8 @@ public class PaletteBar extends View {
 
 
     @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        super.onSizeChanged(w, h, oldw, oldh);
+    protected void onSizeChanged(int w, int h, int oldW, int oldH) {
+        super.onSizeChanged(w, h, oldW, oldH);
         sizeChanged = true;
         mPaletteWidth = w;
         mPaletteHeight = h;
@@ -159,8 +146,6 @@ public class PaletteBar extends View {
 
         @Override
         public boolean onTouch(View v, MotionEvent event) {
-            int action = event.getAction();
-
             float x = event.getX();
             float y = event.getY();
 
@@ -197,8 +182,6 @@ public class PaletteBar extends View {
 
     /**
      * Interface for receiving color selection in {@link PaletteBar}
-     *
-     * @author brianherbert
      */
     public interface PaletteBarListener {
         void onColorSelected(int color);
