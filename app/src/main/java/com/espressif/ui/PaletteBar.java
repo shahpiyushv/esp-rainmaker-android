@@ -7,8 +7,11 @@ import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.Shader;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+
+import com.espressif.rainmaker.R;
 
 
 public class PaletteBar extends View {
@@ -26,6 +29,7 @@ public class PaletteBar extends View {
     static int[] COLORS = {RED, YELLOW, GREEN, TEAL, BLUE, VIOLET, RED};
     private Paint rGBGradientPaint, backgroundPaint;
     private Shader gradient;
+    static float x;
 
 
     private int mPaletteWidth = 0;
@@ -34,7 +38,7 @@ public class PaletteBar extends View {
     /**
      * The border around the palette that indicates the selected color
      */
-    private int mColorMargin = 10;
+    private int mColorMargin = 40;
 
     private int mCurrentHueColor = 180; //default selected color i.e. teal
     float[] hsv = new float[3];
@@ -95,11 +99,22 @@ public class PaletteBar extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+//        hsv[0] = mCurrentHueColor;
+//        mCurrentIntColor = Color.HSVToColor(hsv);
+//        backgroundPaint.setColor(mCurrentIntColor);
+//        canvas.drawPaint(backgroundPaint);
+        drawColorPalette(canvas);
+        drawSliderCircle(canvas);
+    }
+
+    private void drawSliderCircle(Canvas canvas) {
         hsv[0] = mCurrentHueColor;
         mCurrentIntColor = Color.HSVToColor(hsv);
+        backgroundPaint.setColor(Color.WHITE);
+        canvas.drawCircle(x,mPaletteHeight/2,40,backgroundPaint);
         backgroundPaint.setColor(mCurrentIntColor);
-        canvas.drawPaint(backgroundPaint);
-        drawColorPalette(canvas);
+        canvas.drawCircle(x,mPaletteHeight/2,35,backgroundPaint);
+
     }
 
 
@@ -109,8 +124,8 @@ public class PaletteBar extends View {
             rGBGradientPaint.setShader(gradient);
             sizeChanged = false;
         }
-        canvas.drawRect(mColorMargin, mColorMargin, mPaletteWidth - mColorMargin, mPaletteHeight - mColorMargin, rGBGradientPaint);
-
+       // canvas.drawRect(mColorMargin, mColorMargin, mPaletteWidth - mColorMargin, mPaletteHeight - mColorMargin, rGBGradientPaint);
+        canvas.drawRoundRect(mColorMargin, (mPaletteHeight/2)-10, mPaletteWidth - mColorMargin, (mPaletteHeight/2)+10,10,10,rGBGradientPaint);
     }
 
     /**
@@ -140,19 +155,20 @@ public class PaletteBar extends View {
         sizeChanged = true;
         mPaletteWidth = w;
         mPaletteHeight = h;
+        x=mColorMargin;
     }
 
     private final OnTouchListener mTouchListener = new OnTouchListener() {
 
         @Override
         public boolean onTouch(View v, MotionEvent event) {
-            float x = event.getX();
+            x = event.getX();
             float y = event.getY();
 
             if (x < mColorMargin)
-                x = 0;
+                x = 0+mColorMargin;
             if (x > mPaletteWidth - mColorMargin)
-                x = mPaletteWidth;
+                x = mPaletteWidth-mColorMargin;
 
             mCurrentHueColor = getColorFromCoords(x, y);
             if (mListener != null)
