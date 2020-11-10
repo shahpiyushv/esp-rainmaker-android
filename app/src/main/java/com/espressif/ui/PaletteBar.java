@@ -7,7 +7,6 @@ import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.Shader;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -111,9 +110,9 @@ public class PaletteBar extends View {
         hsv[0] = mCurrentHueColor;
         mCurrentIntColor = Color.HSVToColor(hsv);
         backgroundPaint.setColor(Color.WHITE);
-        canvas.drawCircle(x,mPaletteHeight/2,40,backgroundPaint);
+        canvas.drawCircle(x, mPaletteHeight / 2, 40, backgroundPaint);
         backgroundPaint.setColor(mCurrentIntColor);
-        canvas.drawCircle(x,mPaletteHeight/2,35,backgroundPaint);
+        canvas.drawCircle(x, mPaletteHeight / 2, 35, backgroundPaint);
 
     }
 
@@ -124,8 +123,8 @@ public class PaletteBar extends View {
             rGBGradientPaint.setShader(gradient);
             sizeChanged = false;
         }
-       // canvas.drawRect(mColorMargin, mColorMargin, mPaletteWidth - mColorMargin, mPaletteHeight - mColorMargin, rGBGradientPaint);
-        canvas.drawRoundRect(mColorMargin, (mPaletteHeight/2)-10, mPaletteWidth - mColorMargin, (mPaletteHeight/2)+10,10,10,rGBGradientPaint);
+        // canvas.drawRect(mColorMargin, mColorMargin, mPaletteWidth - mColorMargin, mPaletteHeight - mColorMargin, rGBGradientPaint);
+        canvas.drawRoundRect(mColorMargin, (mPaletteHeight / 2) - 10, mPaletteWidth - mColorMargin, (mPaletteHeight / 2) + 10, 10, 10, rGBGradientPaint);
     }
 
     /**
@@ -155,7 +154,8 @@ public class PaletteBar extends View {
         sizeChanged = true;
         mPaletteWidth = w;
         mPaletteHeight = h;
-        x=mColorMargin;
+        float percent = (mCurrentHueColor * 100) / 360;
+        x = (((mPaletteWidth - (mColorMargin * 2)) * percent) / 100) + mColorMargin;
     }
 
     private final OnTouchListener mTouchListener = new OnTouchListener() {
@@ -166,9 +166,9 @@ public class PaletteBar extends View {
             float y = event.getY();
 
             if (x < mColorMargin)
-                x = 0+mColorMargin;
+                x = 0 + mColorMargin;
             if (x > mPaletteWidth - mColorMargin)
-                x = mPaletteWidth-mColorMargin;
+                x = mPaletteWidth - mColorMargin;
 
             mCurrentHueColor = getColorFromCoords(x, y);
             if (mListener != null)
