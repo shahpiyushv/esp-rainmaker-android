@@ -27,21 +27,20 @@ public class PaletteBar extends View {
     private Paint rGBGradientPaint, backgroundPaint;
     static float x;
 
-
     private int mViewWidth = 0;
     private int mViewHeight = 0;
 
-
     private int mColorMargin;
+    static private int mCurrentIntColor, mCurrentHueColor = 180; //default selected color i.e. teal
 
-    private int mCurrentHueColor = 180; //default selected color i.e. teal
     float[] hsv = new float[3];
-    int mCurrentIntColor;
     private PaletteBarListener mListener;
     private boolean sizeChanged;
-    private int paletteHeight;
-    private float outerCircleRadius;
-    private float innerCircleRadius;
+    private static float outerCircleRadius;
+    private static float innerCircleRadius;
+    private static int trackMarkHeight;
+    private static int thumbCircleRadiusDP = 17;
+    private static int trackMarkHeightDP = 10;
 
 
     public PaletteBar(Context context) {
@@ -59,17 +58,12 @@ public class PaletteBar extends View {
     }
 
 
-    public void setColor(int hue) {
-        mCurrentHueColor = hue;
-        invalidate();
-    }
-
-
     public void init(Context context) {
-        mColorMargin = dip2px(context, 18);
-        paletteHeight = dip2px(context, 10);
-        outerCircleRadius = dip2px(context, 18);
-        innerCircleRadius =  dip2px(context, 15);
+        mColorMargin = dip2px(18);
+        outerCircleRadius = dip2px(thumbCircleRadiusDP);
+
+        innerCircleRadius = dip2px(thumbCircleRadiusDP - 2);
+        trackMarkHeight = dip2px(trackMarkHeightDP);
         rGBGradientPaint = new Paint();
         rGBGradientPaint.setAntiAlias(true);
 
@@ -79,7 +73,6 @@ public class PaletteBar extends View {
         hsv[0] = mCurrentHueColor;
         hsv[1] = 10.0f;
         hsv[2] = 10.0f;
-
     }
 
     @Override
@@ -95,7 +88,7 @@ public class PaletteBar extends View {
         backgroundPaint.setColor(Color.WHITE);
         canvas.drawCircle(x, mViewHeight / 2f, outerCircleRadius, backgroundPaint);
         backgroundPaint.setColor(mCurrentIntColor);
-        canvas.drawCircle(x, mViewHeight / 2f,innerCircleRadius, backgroundPaint);
+        canvas.drawCircle(x, mViewHeight / 2f, innerCircleRadius, backgroundPaint);
 
     }
 
@@ -106,7 +99,33 @@ public class PaletteBar extends View {
             rGBGradientPaint.setShader(gradient);
             sizeChanged = false;
         }
-        canvas.drawRoundRect(mColorMargin, (mViewHeight / 2f) - (paletteHeight / 2f), mViewWidth - mColorMargin, (mViewHeight / 2f) + (paletteHeight / 2f), 10, 10, rGBGradientPaint);
+        canvas.drawRoundRect(mColorMargin, (mViewHeight / 2f) - (trackMarkHeight / 2f), mViewWidth - mColorMargin, (mViewHeight / 2f) + (trackMarkHeight / 2f), 10, 10, rGBGradientPaint);
+    }
+
+    /**
+     * for setting the color with "int hue (0-360)"
+     */
+    public void setColor(int hue) {
+        mCurrentHueColor = hue;
+        float percent = (mCurrentHueColor * 100) / 360f;
+        x = (((mViewWidth - (mColorMargin * 2)) * percent) / 100) + mColorMargin;
+        invalidate();
+    }
+
+    /**
+     * for setting the color with "int hue (0-360)"
+     */
+    public void setThumbCircleRadius(int dPRadius) {
+        thumbCircleRadiusDP = dPRadius;
+        invalidate();
+    }
+
+    /**
+     * for setting the color with "int hue (0-360)"
+     */
+    public void setTrackMarkHeight(int dPTrackMarkHeight) {
+        trackMarkHeightDP = dPTrackMarkHeight;
+        invalidate();
     }
 
     /**
@@ -153,7 +172,7 @@ public class PaletteBar extends View {
                 x = mViewWidth - mColorMargin;
 
             mCurrentHueColor = getColorFromCoords(x, y);
-            if (mListener != null)
+            if (mListener != null && event.getAction() == MotionEvent.ACTION_UP)
                 mListener.onColorSelected(mCurrentHueColor);
             performClick();
             invalidate();
@@ -167,8 +186,8 @@ public class PaletteBar extends View {
         return Math.round(customHue);
     }
 
-    public static int dip2px(Context context, float dpValue) {
-        final float scale = context.getResources().getDisplayMetrics().density;
+    public int dip2px(float dpValue) {
+        final float scale = getResources().getDisplayMetrics().density;
         return (int) (dpValue * scale + 0.5f);
     }
 
@@ -187,7 +206,7 @@ public class PaletteBar extends View {
      * Interface for receiving color selection in {@link PaletteBar}
      */
     public interface PaletteBarListener {
-        void onColorSelected(int color);
+        void onColorSelected(int colorHue);
     }
 
 

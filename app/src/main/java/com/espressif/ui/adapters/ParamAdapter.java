@@ -83,7 +83,6 @@ public class ParamAdapter extends RecyclerView.Adapter<ParamAdapter.MyViewHolder
     public void onBindViewHolder(@NonNull final MyViewHolder myViewHolder, final int position) {
 
         final Param param = params.get(position);
-
         if (AppConstants.UI_TYPE_SLIDER.equalsIgnoreCase(param.getUiType())) {
 
             String dataType = param.getDataType();
@@ -97,16 +96,16 @@ public class ParamAdapter extends RecyclerView.Adapter<ParamAdapter.MyViewHolder
                 int min = param.getMinBounds();
 
                 if ((min < max)) {
-                    if (param.getName().equals("hue")) {
-                        displayPalette(myViewHolder, param, position);
-                    } else
-                        displaySlider(myViewHolder, param, position);
+                    displaySlider(myViewHolder, param, position);
 
                 } else {
                     displayLabel(myViewHolder, param, position);
                 }
             }
 
+        } else if (AppConstants.UI_TYPE_COLOR_SLIDER.equalsIgnoreCase(param.getUiType())) {
+
+            displayPalette(myViewHolder, param, position);
         } else if (AppConstants.UI_TYPE_TOGGLE.equalsIgnoreCase(param.getUiType())) {
 
             String dataType = param.getDataType();
@@ -142,6 +141,8 @@ public class ParamAdapter extends RecyclerView.Adapter<ParamAdapter.MyViewHolder
         myViewHolder.intSlider.setVisibility(View.GONE);
         myViewHolder.tvLabelPalette.setText(param.getName());
         myViewHolder.paletteBar.setColor((int) param.getSliderValue());
+        myViewHolder.paletteBar.setThumbCircleRadius(17);
+        myViewHolder.paletteBar.setTrackMarkHeight(10);
         if (param.getProperties().contains("write")) {
 
             if (((EspDeviceActivity) context).isNodeOnline()) {
@@ -170,7 +171,7 @@ public class ParamAdapter extends RecyclerView.Adapter<ParamAdapter.MyViewHolder
                         });
                     }
                 });
-            }else{
+            } else {
                 myViewHolder.paletteBar.setEnabled(false);
             }
         }
